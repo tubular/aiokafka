@@ -392,6 +392,8 @@ class AIOKafkaProducer(object):
                                 batch.expired():
                             batch.done(exception=error())
                         else:
+                            # buffer was read, so seek to beginning
+                            batch.data().seek(0)
                             # Ok, we can retry this batch
                             batches[tp] = batch
                             log.warning(
