@@ -1,5 +1,10 @@
 CHANGES
 --------
+0.2.3.dev0 (2017-06-22)
+^^^^^^^^^^^^^^^^^^^^^^^
+
+* Fixed producer's hang whet NotLeaderForPartition error received on publish
+
 
 0.2.2 (2017-04-17)
 ^^^^^^^^^^^^^^^^^^

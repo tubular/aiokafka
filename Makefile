@@ -5,10 +5,28 @@ SCALA_VERSION?=2.11
 KAFKA_VERSION?=0.10.1.0
 DOCKER_IMAGE=aiolibs/kafka:$(SCALA_VERSION)_$(KAFKA_VERSION)
 DIFF_BRANCH=origin/master
+APP_PATH := $(shell pwd)
+VENV_PATH := $(APP_PATH)/venv_aiokafka
+PIP_PATH := $(VENV_PATH)/bin/pip
+
+venv:	 $(VENV_PATH)/reqs_installed
+
+$(VENV_PATH)/reqs_installed: $(VENV_PATH)
+	$(PIP_PATH) install --upgrade pip
+	$(PIP_PATH) install --upgrade 'setuptools>=0.8'
+	$(PIP_PATH) install wheel
+	touch $(VENV_PATH)/reqs_installed
+
+$(VENV_PATH):
+	pip install virtualenv
+	virtualenv -p $(shell which python3) -q $(VENV_PATH)
 
 setup:
 	pip install -r requirements-dev.txt
 	pip install -Ue .
+
+dist:	 $(VENV_PATH)/reqs_installed
+	 python3.5 setup.py bdist_wheel
 
 flake:
 	extra=$$(python -c "import sys;sys.stdout.write('--exclude tests/test_pep492.py') if sys.version_info[:3] < (3, 5, 0) else sys.stdout.write('')"); \

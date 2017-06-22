@@ -7,7 +7,7 @@ try:
 except ImportError:
     from asyncio import async as ensure_future
 
-__version__ = '0.3.0.dev'
+__version__ = '0.2.3.dev'
 PY_35 = sys.version_info >= (3, 5)
 
 from .client import AIOKafkaClient  # noqa
