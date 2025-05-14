@@ -2,6 +2,13 @@
 Changelog
 =========
 
+0.13.0.dev0 (2025-05-14)
+========================
+
+New features:
+
+* Support rack_id in the consumer
+
 0.13.0 (????-??-??)
 ===================
 
