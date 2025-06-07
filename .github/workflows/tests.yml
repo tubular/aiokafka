@@ -36,7 +36,7 @@ jobs:
         echo "::set-output name=dir::$(pip cache dir)"
 
     - name: Cache packages
-      uses: actions/cache@v1
+      uses: actions/cache@v4
       with:
         path: ${{ steps.pip-cache.outputs.dir }}
         key: ${{ runner.os }}-py-3.9-${{ hashFiles('requirements-ci.txt') }}-${{ hashFiles('setup.py') }}
@@ -92,7 +92,7 @@ jobs:
         echo "::set-output name=dir::$(pip cache dir)"
 
     - name: Cache packages
-      uses: actions/cache@v1
+      uses: actions/cache@v4
       with:
         path: ${{ steps.pip-cache.outputs.dir }}
         key: ${{ runner.os }}-py-${{ matrix.python }}-${{ hashFiles('requirements-win-test.txt') }}-${{ hashFiles('setup.py') }}
@@ -160,7 +160,7 @@ jobs:
         echo "::set-output name=dir::$(pip cache dir)"
 
     - name: Cache packages
-      uses: actions/cache@v1
+      uses: actions/cache@v4
       with:
         path: ${{ steps.pip-cache.outputs.dir }}
         key: ${{ runner.os }}-py-${{ matrix.python }}-${{ hashFiles('requirements-ci.txt') }}-${{ hashFiles('setup.py') }}
@@ -290,7 +290,7 @@ jobs:
         echo "::set-output name=dir::$(pip cache dir)"
 
     - name: Cache packages
-      uses: actions/cache@v1
+      uses: actions/cache@v4
       with:
         path: ${{ steps.pip-cache.outputs.dir }}
         key: ${{ runner.os }}-py-${{ matrix.python }}-${{ hashFiles('requirements-ci.txt') }}-${{ hashFiles('setup.py') }}
