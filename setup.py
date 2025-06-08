@@ -114,6 +114,8 @@ install_requires = [
     "async-timeout",
     "kafka-python>=2.0.2,<=2.0.3",
     "packaging",
+    "requests",
+    "requests-unixsocket",
 ]
 
 
