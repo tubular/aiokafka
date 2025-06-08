@@ -625,14 +625,41 @@ class Fetcher:
                     self._max_partition_fetch_bytes))
             klass = self._fetch_request_class
             if klass.API_VERSION > 10:
+                topics = collections.defaultdict(list)
+                for k, v in by_topics.items():
+                    for partition_info in v:
+                        topics[k].append(
+                            (
+                                partition_info[0],
+                                -1,
+                                partition_info[1],
+                                -1,
+                                partition_info[2],
+                            )
+                        )
+
                 req = klass(
                     -1,  # replica_id
                     self._fetch_max_wait_ms,
                     self._fetch_min_bytes,
                     self._fetch_max_bytes,
                     self._isolation_level,
+                    self._session_id,
+                    self._session_epoch,
+                    list(topics.items()),
+                    self._forgotten_topics_data,
                     self._rack_id,
-                    list(by_topics.items()))
+                )
+            elif klass.API_VERSION > 6:
+                req = klass(
+                    -1,  # replica_id
+                    self._fetch_max_wait_ms,
+                    self._fetch_min_bytes,
+                    self._fetch_max_bytes,
+                    self._isolation_level,
+                    list(by_topics.items()),
+                    self._forgotten_topics_data,
+                )
             elif klass.API_VERSION > 3:
                 req = klass(
                     -1,  # replica_id
@@ -688,9 +715,12 @@ class Fetcher:
 
         fetch_offsets = {}
         for topic, partitions in request.topics:
-            for partition, offset, _ in partitions:
-                fetch_offsets[TopicPartition(topic, partition)] = offset
-
+            if self._client.api_version >= (2, 4, 0):
+                for partition, _, offset, _, _ in partitions:
+                    fetch_offsets[TopicPartition(topic, partition)] = offset
+            else:
+                for partition, offset, _ in partitions:
+                    fetch_offsets[TopicPartition(topic, partition)] = offset
         now_ms = int(1000 * time.time())
         for topic, partitions in response.topics:
             for partition, error_code, highwater, *part_data in partitions:
@@ -707,7 +737,13 @@ class Fetcher:
                     continue
 
                 if error_type is Errors.NoError:
-                    if request.API_VERSION >= 4:
+                    if request.API_VERSION >= 11:
+                        aborted_transactions = part_data[-3]
+                        lso = part_data[-5]
+                    elif request.API_VERSION >= 5:
+                        aborted_transactions = part_data[-2]
+                        lso = part_data[-4]
+                    elif request.API_VERSION >= 4:
                         aborted_transactions = part_data[-2]
                         lso = part_data[-3]
                     else:
