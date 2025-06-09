@@ -352,8 +352,14 @@ class Fetcher:
             OffsetOutOfRange errors: 'earliest' will move to the oldest
             available message, 'latest' will move to the most recent. Any
             ofther value will raise the exception. Default: 'latest'.
+        session_id (int): The fetch session ID.
+        session_epoch (int): The fetch session epoch, which is used for
+            ordering requests in a session.
         isolation_level (str): Controls how to read messages written
             transactionally. See consumer description.
+        forgotten_topics_data ([str, [int]]): In an incremental fetch
+            request, the partitions to remove.
+        rack_id (str): Rack ID of the consumer making this request.
     """
 
     def __init__(
@@ -370,7 +376,11 @@ class Fetcher:
             retry_backoff_ms=100,
             auto_offset_reset='latest',
             isolation_level="read_uncommitted",
-            rack_id=""):
+            session_id=0,
+            session_epoch=-1,
+            forgotten_topics_data=None,
+            rack_id="",
+    ):
         self._client = client
         self._loop = client._loop
         self._key_deserializer = key_deserializer
@@ -395,6 +405,9 @@ class Fetcher:
             raise ValueError(
                 f"Incorrect isolation level {isolation_level}")
 
+        self._session_id = session_id
+        self._session_epoch = session_epoch
+        self._forgotten_topics_data = forgotten_topics_data or []
         self._rack_id = rack_id
         self._records = collections.OrderedDict()
         self._in_flight = set()
